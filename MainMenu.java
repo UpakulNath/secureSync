@@ -60,6 +60,33 @@ public class MainMenu {
             }
         });
 
+
+        decryptButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                menuFrame.dispose();
+                File encryptedDir = new File("C:/Users/Upakul/Desktop/EncryptedFolders");
+
+                // Ensure the folder exists
+                if (!encryptedDir.exists()) {
+                    JOptionPane.showMessageDialog(null, "No encrypted folders found on Desktop.");
+                    return;
+                }
+
+                // Create a file chooser that starts in the encrypted folder directory
+                JFileChooser chooser = new JFileChooser(encryptedDir);
+                chooser.setDialogTitle("Select a folder to decrypt");
+                chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // only folders
+
+                int result = chooser.showOpenDialog(null);
+
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedEncryptedFolder = chooser.getSelectedFile();
+                    // Now call your decryption logic
+                    Decryptor.decryptLogic(selectedEncryptedFolder);
+                }
+            }
+        });
+
     }
 
 }

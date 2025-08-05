@@ -8,10 +8,7 @@ import java.nio.file.StandardCopyOption;
 
 import javax.swing.*;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 
 public class Encryptor {
     public static void encryptLogic(File folderName) {
