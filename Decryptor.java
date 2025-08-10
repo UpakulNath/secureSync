@@ -11,47 +11,37 @@ public class Decryptor {
         if (files != null && files.length > 0) {
             for (String file : files) {
                 File currentFile = new File(folder, file);
-                long size = currentFile.length();
 
                 if (currentFile.isFile()) {
                     try {
-                        // Read all bytes safely
-                        FileInputStream fis = new FileInputStream(currentFile);
-                        byte[] data = new byte[(int) size];
-                        int bytesRead = 0;
-                        int offset = 0;
-
-                        while (offset < data.length
-                                && (bytesRead = fis.read(data, offset, data.length - offset)) >= 0) {
-                            offset += bytesRead;
+                        // Read full file content (safe for binary files)
+                        byte[] data;
+                        try (FileInputStream fis = new FileInputStream(currentFile)) {
+                            data = fis.readAllBytes();
                         }
-                        fis.close();
 
                         // Decrypt
                         byte[] decrypted = CryptoUtils.decrypt(data, "1234");
 
-                        // Overwrite original file with decrypted data
-                        FileOutputStream fos = new FileOutputStream(currentFile);
-                        fos.write(decrypted);
-                        fos.close();
+                        // Overwrite with decrypted content
+                        try (FileOutputStream fos = new FileOutputStream(currentFile)) {
+                            fos.write(decrypted);
+                        }
 
                     } catch (Exception e) {
-                        System.out.println("Error decrypting file: " + currentFile.getAbsolutePath());
+                        System.out.println("❌ Error decrypting file: " + currentFile.getAbsolutePath());
                         e.printStackTrace();
                     }
                 }
             }
 
-            // Step 1: Move decrypted folder to Desktop/DecryptedFolders
+            // Move decrypted folder to Desktop/DecryptedFolders (remove .locked suffix)
             File desktop = new File(System.getProperty("user.home"), "Desktop");
             File decryptedFolderBase = new File(desktop, "DecryptedFolders");
-
-            if (!decryptedFolderBase.exists()) {
-                decryptedFolderBase.mkdir();
-            }
+            decryptedFolderBase.mkdirs();
 
             File destinationFolder = new File(decryptedFolderBase,
-                    folder.getName().replace(".locked", "")); // remove ".locked" suffix
+                    folder.getName().replace(".locked", ""));
 
             try {
                 Files.move(folder.toPath(), destinationFolder.toPath(), StandardCopyOption.REPLACE_EXISTING);
